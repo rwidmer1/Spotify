@@ -293,9 +293,9 @@
     localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
   }
 
-  // Si déjà connecté, on file direct à l'accueil
+  // Redirection automatique si une session est déjà active
   if (localStorage.getItem(STORAGE_SESSION)) {
-    window.location.href = 'index.html';
+    window.location.href = './index.html';
   }
 
   const formMessage = document.getElementById('formMessage');
@@ -327,16 +327,16 @@
 
   function goToAccueil(){
     try {
-      window.location.href = 'index.html';
+      window.location.href = './index.html';
     } catch (err) {
       console.error('Redirection impossible :', err);
     }
-    // Filet de sécurité si la redirection automatique échoue
+    // Message de secours si la redirection échoue à cause du réseau ou du cache
     setTimeout(() => {
       showMessage(
         "La redirection automatique n'a pas fonctionné.<br>" +
-        "Vérifie que <code>index.html</code> est bien dans le <strong>même dossier</strong> que cette page.<br>" +
-        '<a href="index.html">→ Cliquer ici pour continuer</a>',
+        "Vérifie que <code>index.html</code> est bien dans le même dossier sur GitHub.<br>" +
+        '<a href="./index.html">→ Cliquer ici pour forcer la redirection</a>',
         'error'
       );
     }, 1500);
@@ -382,7 +382,6 @@
     const existing = users.find(u => u.email === email);
 
     if (existing) {
-      // --- Compte déjà existant : on vérifie le mot de passe ---
       if (existing.password !== pwInput.value) {
         showMessage("Mot de passe incorrect pour ce compte.", 'error');
         return;
@@ -395,7 +394,6 @@
       goToAccueil();
 
     } else {
-      // --- Nouveau compte créé automatiquement, sans étape d'inscription ---
       const newUser = {
         email,
         password: pwInput.value,
@@ -416,7 +414,7 @@
     }
   });
 
-  // Boutons de connexion alternative (démo, pas de vrai OAuth ici)
+  // Boutons démo OAuth
   document.getElementById('googleBtn').addEventListener('click', () => {
     alert('Connexion Google (démo) — à brancher sur ton vrai flux OAuth.');
   });
