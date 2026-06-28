@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Go — Admin</title>
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --panel:#121212;
+    --panel-2:#181818;
+    --field:#1a1a1a;
+    --field-border:#2a2a2a;
+    --green:#1ed760;
+    --green-dim:#169c46;
+    --text:#fff;
+    --text-dim:#a7a7a7;
+    --error:#f15e6c;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    padding:32px 24px 60px;
+  }
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+
+  .wrap{max-width:1100px;margin:0 auto;}
+
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:28px;
+    flex-wrap:wrap;
+    gap:16px;
+  }
+  .brand{
+    display:flex;align-items:center;gap:10px;
+    font-weight:800;font-size:20px;letter-spacing:-.3px;
+  }
+  .brand .dot{
+    width:26px;height:26px;border-radius:50%;
+    background:var(--green);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .brand .dot svg{width:15px;height:15px;fill:#000;}
+  .brand .tag{
+    background:#2a2a2a;color:var(--text-dim);
+    font-size:11px;font-weight:700;letter-spacing:.4px;
+    padding:3px 8px;border-radius:4px;margin-left:4px;
+  }
+
+  .nav-links{display:flex;gap:10px;}
+  .ghost-link{
+    background:transparent;border:1px solid #3a3a3a;border-radius:999px;
+    color:var(--text);font-size:13px;font-weight:700;
+    padding:9px 16px;text-decoration:none;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .ghost-link:hover{border-color:var(--text);}
+
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:14px;
+    margin-bottom:28px;
+  }
+  .stat-card{
+    background:var(--panel);border-radius:10px;padding:18px 20px;
+  }
+  .stat-card .num{font-size:28px;font-weight:800;color:var(--green);}
+  .stat-card .label{font-size:13px;color:var(--text-dim);margin-top:4px;}
+
+  .toolbar{
+    display:flex;align-items:center;gap:12px;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .search-box{position:relative;flex:1;max-width:340px;}
+  .search-box input{
+    width:100%;
+    background:var(--field);border:1px solid var(--field-border);
+    border-radius:999px;color:var(--text);
+    padding:10px 14px 10px 38px;font-size:14px;outline:none;
+  }
+  .search-box input:focus{border-color:var(--text);}
+  .search-box svg{
+    position:absolute;left:13px;top:50%;transform:translateY(-50%);
+    width:14px;height:14px;fill:var(--text-dim);
+  }
+
+  .toggle-pw-btn, .danger-btn, .export-btn{
+    border-radius:999px;font-size:13px;font-weight:700;
+    padding:9px 16px;border:1px solid var(--field-border);
+    background:transparent;color:var(--text);
+  }
+  .toggle-pw-btn:hover, .export-btn:hover{border-color:var(--text);}
+  .danger-btn{border-color:#5a2a2a;color:#ff8a8a;margin-left:auto;}
+  .danger-btn:hover{background:#3a1414;border-color:var(--error);}
+
+  .table-wrap{
+    background:var(--panel);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  table{width:100%;border-collapse:collapse;}
+  thead th{
+    text-align:left;
+    font-size:12px;letter-spacing:.4px;text-transform:uppercase;
+    color:var(--text-dim);
+    padding:14px 16px;
+    border-bottom:1px solid #262626;
+    white-space:nowrap;
+  }
+  tbody td{
+    padding:14px 16px;
+    border-bottom:1px solid #1e1e1e;
+    font-size:14px;
+    vertical-align:middle;
+  }
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:var(--panel-2);}
+
+  .name-cell{display:flex;align-items:center;gap:10px;}
+  .avatar-mini{
+    width:32px;height:32px;border-radius:50%;flex-shrink:0;
+    background:linear-gradient(135deg,var(--green),#0a7a37);
+    color:#000;font-weight:800;font-size:12px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .name-cell strong{font-size:14px;font-weight:600;}
+  .name-cell span{display:block;font-size:12px;color:var(--text-dim);}
+
+  .badge{
+    font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;
+    background:#1ed76022;color:var(--green);
+  }
+  .badge.muted{background:#2a2a2a;color:var(--text-dim);}
+
+  .pw-cell{font-family:'SFMono-Regular',Consolas,monospace;color:var(--text-dim);letter-spacing:1px;}
+
+  .row-actions{display:flex;gap:8px;}
+  .icon-btn{
+    width:30px;height:30px;border-radius:6px;
+    background:none;border:none;color:var(--text-dim);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .icon-btn:hover{background:#2a2a2a;color:var(--text);}
+  .icon-btn.delete:hover{color:var(--error);background:#3a1414;}
+  .icon-btn svg{width:16px;height:16px;fill:currentColor;}
+
+  .empty-state{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--text-dim);
+  }
+  .empty-state svg{width:40px;height:40px;fill:#3a3a3a;margin-bottom:14px;}
+  .empty-state p{font-size:14px;}
+
+  .footnote{
+    margin-top:18px;
+    font-size:12px;
+    color:#5a5a5a;
+    line-height:1.6;
+  }
+
+  @media (max-width:640px){
+    .table-wrap{overflow-x:auto;}
+    table{min-width:680px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <span class="dot">
+        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm4.6 14.3a.62.62 0 0 1-.86.2c-2.35-1.43-5.3-1.76-8.79-.96a.62.62 0 0 1-.27-1.2c3.82-.87 7.1-.5 9.72 1.1.3.18.4.56.2.86zm1.22-2.7a.78.78 0 0 1-1.07.26c-2.69-1.65-6.79-2.14-9.97-1.17a.78.78 0 0 1-.45-1.49c3.63-1.1 8.15-.56 11.23 1.33.37.23.49.72.26 1.07zm.1-2.82C14.7 9 8.36 8.79 5.1 9.8a.93.93 0 1 1-.54-1.78c3.74-1.14 10.65-.9 14.85 1.62a.93.93 0 0 1-.97 1.59z"/></svg>
+      </span>
+      Music Go <span class="tag">ADMIN</span>
+    </div>
+    <div class="nav-links">
+      <a class="ghost-link" href="musicgo-accueil.html">← Accueil</a>
+      <a class="ghost-link" href="musicgo-connexion.html">Connexion</a>
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="num" id="statTotal">0</div>
+      <div class="label">Comptes créés</div>
+    </div>
+    <div class="stat-card">
+      <div class="num" id="statNewsletter">0</div>
+      <div class="label">Abonnés newsletter</div>
+    </div>
+    <div class="stat-card">
+      <div class="num" id="statSession">—</div>
+      <div class="label">Session active</div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24"><path d="M11 4a7 7 0 1 0 4.5 12.4l4.6 4.6 1.4-1.4-4.6-4.6A7 7 0 0 0 11 4zm0 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10z"/></svg>
+      <input type="text" id="searchInput" placeholder="Filtrer par e-mail ou nom...">
+    </div>
+    <button class="toggle-pw-btn" id="togglePwBtn">Masquer les mots de passe</button>
+    <button class="export-btn" id="exportBtn">Exporter en JSON</button>
+    <button class="danger-btn" id="clearAllBtn">Supprimer tous les comptes</button>
+  </div>
+
+  <div class="table-wrap">
+    <table id="usersTable">
+      <thead>
+        <tr>
+          <th>Utilisateur</th>
+          <th>E-mail</th>
+          <th>Mot de passe</th>
+          <th>Date de naissance</th>
+          <th>Newsletter</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="usersBody"></tbody>
+    </table>
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.2-8 5v3h16v-3c0-2.8-3.6-5-8-5z"/></svg>
+      <p>Aucun compte enregistré pour l'instant.</p>
+    </div>
+  </div>
+
+  <p class="footnote">
+    Données stockées localement dans le navigateur (localStorage), propres à cet appareil et ce navigateur — rien n'est envoyé à un serveur. Page réservée à un usage personnel, à ne pas exposer publiquement.
+  </p>
+
+</div>
+
+<script>
+  const STORAGE_USERS = 'musicgo_users';
+  const STORAGE_SESSION = 'musicgo_currentUser';
+
+  let passwordsVisible = true;
+
+  function getUsers(){
+    try { return JSON.parse(localStorage.getItem(STORAGE_USERS)) || []; }
+    catch { return []; }
+  }
+  function saveUsers(users){
+    localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
+  }
+  function getSession(){
+    try { return JSON.parse(localStorage.getItem(STORAGE_SESSION)); }
+    catch { return null; }
+  }
+
+  function initials(name){
+    return (name || '?')
+      .split(' ')
+      .map(w => w[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
+  }
+
+  function formatDate(d){
+    if (!d) return '—';
+    const [y,m,day] = d.split('-');
+    return day && m && y ? `${day}/${m}/${y}` : d;
+  }
+
+  function render(filter = ''){
+    const users = getUsers();
+    const body = document.getElementById('usersBody');
+    const empty = document.getElementById('emptyState');
+    const table = document.getElementById('usersTable');
+
+    const filtered = users.filter(u =>
+      u.email.toLowerCase().includes(filter.toLowerCase()) ||
+      (u.displayName || '').toLowerCase().includes(filter.toLowerCase())
+    );
+
+    document.getElementById('statTotal').textContent = users.length;
+    document.getElementById('statNewsletter').textContent = users.filter(u => u.newsletter).length;
+    const session = getSession();
+    document.getElementById('statSession').textContent = session ? session.displayName : 'Aucune';
+
+    if (users.length === 0) {
+      table.style.display = 'none';
+      empty.style.display = 'block';
+      return;
+    }
+    table.style.display = 'table';
+    empty.style.display = 'none';
+
+    body.innerHTML = filtered.map((u, i) => {
+      const realIndex = users.indexOf(u);
+      return `
+        <tr>
+          <td>
+            <div class="name-cell">
+              <div class="avatar-mini">${initials(u.displayName)}</div>
+              <div>
+                <strong>${escapeHtml(u.displayName || '—')}</strong>
+                <span>${session && session.email === u.email ? 'Connecté(e) actuellement' : ''}</span>
+              </div>
+            </div>
+          </td>
+          <td>${escapeHtml(u.email)}</td>
+          <td class="pw-cell" data-pw="${escapeHtml(u.password)}">${passwordsVisible ? escapeHtml(u.password) : '••••••••'}</td>
+          <td>${formatDate(u.birthdate)}</td>
+          <td>${u.newsletter
+            ? '<span class="badge">Inscrit</span>'
+            : '<span class="badge muted">Non</span>'}</td>
+          <td>
+            <div class="row-actions">
+              <button class="icon-btn delete" title="Supprimer ce compte" data-index="${realIndex}">
+                <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 14H7zM9 4h6l1 2H8zM9 10v8M12 10v8M15 10v8"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    body.querySelectorAll('.icon-btn.delete').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.index, 10);
+        const users = getUsers();
+        const target = users[idx];
+        if (!confirm(`Supprimer le compte de ${target.displayName || target.email} ?`)) return;
+        users.splice(idx, 1);
+        saveUsers(users);
+
+        const session = getSession();
+        if (session && session.email === target.email) {
+          localStorage.removeItem(STORAGE_SESSION);
+        }
+        render(document.getElementById('searchInput').value);
+      });
+    });
+  }
+
+  function escapeHtml(str){
+    return String(str ?? '')
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    render(e.target.value);
+  });
+
+  document.getElementById('togglePwBtn').addEventListener('click', (e) => {
+    passwordsVisible = !passwordsVisible;
+    e.target.textContent = passwordsVisible ? 'Masquer les mots de passe' : 'Afficher les mots de passe';
+    render(document.getElementById('searchInput').value);
+  });
+
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    const users = getUsers();
+    const blob = new Blob([JSON.stringify(users, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'musicgo-comptes.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('clearAllBtn').addEventListener('click', () => {
+    if (!confirm('Supprimer TOUS les comptes ? Cette action est irréversible.')) return;
+    localStorage.removeItem(STORAGE_USERS);
+    localStorage.removeItem(STORAGE_SESSION);
+    render();
+  });
+
+  render();
+</script>
+
+</body>
+</html>

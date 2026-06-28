@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Go — Écouter ensemble</title>
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --panel:#121212;
+    --panel-2:#181818;
+    --field:#1a1a1a;
+    --field-border:#2a2a2a;
+    --green:#1ed760;
+    --green-dim:#169c46;
+    --text:#fff;
+    --text-dim:#a7a7a7;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+  }
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;cursor:pointer;}
+
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 32px;
+    max-width:1100px;margin:0 auto;
+  }
+  .brand{
+    display:flex;align-items:center;gap:10px;
+    font-weight:800;font-size:18px;letter-spacing:-.3px;
+  }
+  .brand .dot{
+    width:24px;height:24px;border-radius:50%;
+    background:var(--green);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .brand .dot svg{width:14px;height:14px;fill:#000;}
+  .back-link{
+    font-size:13px;font-weight:700;color:var(--text-dim);
+    display:flex;align-items:center;gap:6px;
+  }
+  .back-link:hover{color:var(--text);}
+
+  .hero{
+    max-width:1100px;margin:0 auto;
+    padding:40px 32px 20px;
+    display:grid;
+    grid-template-columns:1.1fr 1fr;
+    gap:48px;
+    align-items:center;
+  }
+  @media (max-width:860px){
+    .hero{grid-template-columns:1fr;}
+  }
+
+  .hero-text h1{
+    font-size:44px;
+    line-height:1.12;
+    letter-spacing:-.6px;
+    margin-bottom:18px;
+  }
+  .hero-text h1 span{color:var(--green);}
+  .hero-text p{
+    color:var(--text-dim);
+    font-size:16px;
+    line-height:1.65;
+    max-width:480px;
+    margin-bottom:28px;
+  }
+
+  .cta-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center;}
+  .btn-primary{
+    background:var(--green);color:#000;
+    border:none;border-radius:999px;
+    padding:14px 26px;font-size:15px;font-weight:800;
+    transition:transform .12s ease, background .15s ease;
+  }
+  .btn-primary:hover{background:#21e065;transform:translateY(-1px);}
+  .btn-secondary{
+    background:transparent;color:var(--text);
+    border:1px solid #3a3a3a;border-radius:999px;
+    padding:14px 24px;font-size:15px;font-weight:700;
+  }
+  .btn-secondary:hover{border-color:var(--text);}
+
+  .status-pill{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:12px;font-weight:700;color:var(--text-dim);
+    background:var(--panel-2);
+    padding:6px 12px;border-radius:999px;
+    margin-bottom:22px;
+  }
+  .status-pill .blip{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--green);
+    animation:blip 1.4s ease-in-out infinite;
+  }
+  @keyframes blip{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+  /* Visuel : deux avatars "en duo" */
+  .duo-art{
+    position:relative;
+    background:radial-gradient(circle at 50% 35%, #1ed76022, transparent 60%), var(--panel);
+    border-radius:20px;
+    padding:50px 30px;
+    display:flex;flex-direction:column;align-items:center;
+    gap:26px;
+  }
+  .avatars{display:flex;align-items:center;gap:-10px;}
+  .avatar-circle{
+    width:88px;height:88px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:30px;font-weight:800;color:#000;
+    border:4px solid var(--panel);
+    box-shadow:0 10px 30px rgba(0,0,0,.5);
+  }
+  .avatar-circle.a{background:linear-gradient(135deg,var(--green),#0a7a37);margin-right:-22px;z-index:2;}
+  .avatar-circle.b{background:linear-gradient(135deg,#3a3a3a,#181818);color:#fff;}
+  .link-icon{
+    width:34px;height:34px;border-radius:50%;
+    background:#fff;color:#000;
+    display:flex;align-items:center;justify-content:center;
+    margin:-18px;z-index:3;
+    box-shadow:0 6px 14px rgba(0,0,0,.4);
+  }
+  .link-icon svg{width:16px;height:16px;fill:#000;}
+
+  .mini-bars{display:flex;align-items:flex-end;gap:5px;height:46px;}
+  .mini-bars span{
+    width:6px;border-radius:3px;
+    background:linear-gradient(180deg,var(--green),var(--green-dim));
+    animation:pulse 1.5s ease-in-out infinite;
+  }
+  .mini-bars span:nth-child(1){height:30%;animation-delay:0s;}
+  .mini-bars span:nth-child(2){height:65%;animation-delay:.1s;}
+  .mini-bars span:nth-child(3){height:100%;animation-delay:.2s;}
+  .mini-bars span:nth-child(4){height:50%;animation-delay:.3s;}
+  .mini-bars span:nth-child(5){height:80%;animation-delay:.4s;}
+  .mini-bars span:nth-child(6){height:35%;animation-delay:.5s;}
+  @keyframes pulse{0%,100%{transform:scaleY(.6);opacity:.7;}50%{transform:scaleY(1);opacity:1;}}
+
+  .duo-caption{font-size:13px;color:var(--text-dim);text-align:center;}
+  .duo-caption strong{color:var(--text);}
+
+  /* Section "comment ça marche" */
+  .steps{
+    max-width:1100px;margin:50px auto 0;
+    padding:0 32px;
+  }
+  .steps h2{font-size:22px;margin-bottom:24px;letter-spacing:-.3px;}
+  .step-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:16px;
+  }
+  @media (max-width:860px){.step-grid{grid-template-columns:1fr;}}
+  .step-card{
+    background:var(--panel);border-radius:12px;padding:24px;
+  }
+  .step-num{
+    width:32px;height:32px;border-radius:50%;
+    background:var(--green);color:#000;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:14px;margin-bottom:16px;
+  }
+  .step-card h3{font-size:15px;margin-bottom:8px;}
+  .step-card p{font-size:13px;color:var(--text-dim);line-height:1.6;}
+
+  /* Panneau de session (apparaît une fois connecté) */
+  .session-panel{
+    max-width:1100px;margin:50px auto 60px;
+    padding:0 32px;
+  }
+  .session-card{
+    background:var(--panel);border-radius:16px;
+    padding:32px;
+    display:flex;align-items:center;justify-content:space-between;
+    gap:24px;flex-wrap:wrap;
+  }
+  .session-card.hidden{display:none;}
+  .session-info h3{font-size:18px;margin-bottom:6px;}
+  .session-info p{font-size:13px;color:var(--text-dim);}
+  .session-code-box{
+    display:flex;align-items:center;gap:10px;
+  }
+  .session-code{
+    background:var(--field);border:1px solid var(--field-border);
+    border-radius:8px;
+    padding:14px 22px;
+    font-family:'SFMono-Regular',Consolas,monospace;
+    font-size:22px;font-weight:700;letter-spacing:3px;
+    color:var(--green);
+  }
+  .copy-btn{
+    background:transparent;border:1px solid var(--field-border);
+    border-radius:8px;color:var(--text);
+    padding:14px 18px;font-size:13px;font-weight:700;
+  }
+  .copy-btn:hover{border-color:var(--text);}
+  .copy-btn.copied{border-color:var(--green);color:var(--green);}
+
+  .login-gate{
+    max-width:1100px;margin:50px auto 60px;
+    padding:0 32px;
+  }
+  .gate-card{
+    background:var(--panel);border-radius:16px;
+    padding:32px;
+    display:flex;align-items:center;justify-content:space-between;
+    gap:20px;flex-wrap:wrap;
+  }
+  .gate-card h3{font-size:16px;margin-bottom:6px;}
+  .gate-card p{font-size:13px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <span class="dot">
+        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm4.6 14.3a.62.62 0 0 1-.86.2c-2.35-1.43-5.3-1.76-8.79-.96a.62.62 0 0 1-.27-1.2c3.82-.87 7.1-.5 9.72 1.1.3.18.4.56.2.86zm1.22-2.7a.78.78 0 0 1-1.07.26c-2.69-1.65-6.79-2.14-9.97-1.17a.78.78 0 0 1-.45-1.49c3.63-1.1 8.15-.56 11.23 1.33.37.23.49.72.26 1.07zm.1-2.82C14.7 9 8.36 8.79 5.1 9.8a.93.93 0 1 1-.54-1.78c3.74-1.14 10.65-.9 14.85 1.62a.93.93 0 0 1-.97 1.59z"/></svg>
+      </span>
+      Music Go
+    </div>
+    <a class="back-link" href="musicgo-accueil.html">← Retour à l'accueil</a>
+  </div>
+
+  <section class="hero">
+    <div class="hero-text">
+      <div class="status-pill"><span class="blip"></span> Nouveau · Écoute synchronisée</div>
+      <h1>Tu veux écouter de la musique<br>avec un ami ? <span>Connecte-toi et lance une session.</span></h1>
+      <p>Partage un code, et écoutez exactement la même chose, exactement au même moment — même si vous n'êtes pas dans la même pièce.</p>
+      <div class="cta-row">
+        <button class="btn-primary" id="mainCta">Se connecter pour commencer</button>
+        <a class="btn-secondary" href="musicgo-accueil.html">Découvrir l'appli</a>
+      </div>
+    </div>
+
+    <div class="duo-art">
+      <div class="avatars">
+        <div class="avatar-circle a">T</div>
+        <div class="link-icon">
+          <svg viewBox="0 0 24 24"><path d="M3.9 12a5 5 0 0 1 5-5h3v2h-3a3 3 0 0 0 0 6h3v2h-3a5 5 0 0 1-5-5zm16.2 0a5 5 0 0 1-5 5h-3v-2h3a3 3 0 0 0 0-6h-3V7h3a5 5 0 0 1 5 5z"/></svg>
+        </div>
+        <div class="avatar-circle b">A</div>
+      </div>
+      <div class="mini-bars" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <p class="duo-caption">Toi et <strong>Alex</strong> écoutez en direct la même playlist</p>
+    </div>
+  </section>
+
+  <section class="steps">
+    <h2>Comment ça marche</h2>
+    <div class="step-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h3>Connecte-toi</h3>
+        <p>Avec ton compte Music Go habituel — pas besoin de créer quoi que ce soit en plus.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h3>Partage ton code</h3>
+        <p>Lance une session et envoie le code à ton ami par message, Discord, ou autre.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h3>Écoutez ensemble</h3>
+        <p>Même titre, même instant, peu importe où vous êtes. Vous pouvez même alterner qui choisit le prochain morceau.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Affiché si pas connecté -->
+  <section class="login-gate" id="loginGate">
+    <div class="gate-card">
+      <div>
+        <h3>Connecte-toi pour lancer une session</h3>
+        <p>Il te faut un compte Music Go pour générer un code à partager avec un ami.</p>
+      </div>
+      <a class="btn-primary" href="musicgo-connexion.html" style="display:inline-block;text-decoration:none;">Se connecter</a>
+    </div>
+  </section>
+
+  <!-- Affiché une fois connecté -->
+  <section class="session-panel">
+    <div class="session-card hidden" id="sessionCard">
+      <div class="session-info">
+        <h3 id="sessionTitle">Prêt à écouter ensemble, <span id="userNameSpot"></span> ?</h3>
+        <p>Clique pour générer un code, puis partage-le avec ton ami pour qu'il rejoigne ta session.</p>
+      </div>
+      <div class="session-code-box" id="codeBox" style="display:none;">
+        <div class="session-code" id="sessionCode">— — — —</div>
+        <button class="copy-btn" id="copyBtn">Copier le code</button>
+      </div>
+      <button class="btn-primary" id="generateBtn">Générer un code de session</button>
+    </div>
+  </section>
+
+<script>
+  const STORAGE_SESSION = 'musicgo_currentUser';
+  const session = JSON.parse(localStorage.getItem(STORAGE_SESSION) || 'null');
+
+  const loginGate = document.getElementById('loginGate');
+  const sessionCard = document.getElementById('sessionCard');
+  const mainCta = document.getElementById('mainCta');
+
+  if (session) {
+    loginGate.style.display = 'none';
+    sessionCard.classList.remove('hidden');
+    document.getElementById('userNameSpot').textContent = session.displayName;
+    mainCta.textContent = 'Lancer une session';
+    mainCta.addEventListener('click', () => {
+      document.getElementById('generateBtn').click();
+      sessionCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  } else {
+    sessionCard.style.display = 'none';
+    mainCta.addEventListener('click', () => {
+      window.location.href = 'musicgo-connexion.html';
+    });
+  }
+
+  document.getElementById('generateBtn')?.addEventListener('click', () => {
+    const code = Math.random().toString(36).slice(2, 6).toUpperCase() + '-' +
+                 Math.random().toString(36).slice(2, 6).toUpperCase();
+    document.getElementById('sessionCode').textContent = code;
+    document.getElementById('codeBox').style.display = 'flex';
+    document.getElementById('generateBtn').textContent = 'Générer un nouveau code';
+  });
+
+  document.getElementById('copyBtn')?.addEventListener('click', (e) => {
+    const code = document.getElementById('sessionCode').textContent;
+    navigator.clipboard?.writeText(code).catch(() => {});
+    e.target.textContent = 'Copié !';
+    e.target.classList.add('copied');
+    setTimeout(() => {
+      e.target.textContent = 'Copier le code';
+      e.target.classList.remove('copied');
+    }, 1800);
+  });
+</script>
+
+</body>
+</html>
