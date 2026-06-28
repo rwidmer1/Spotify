@@ -295,7 +295,7 @@
 
   // Si déjà connecté, on file direct à l'accueil
   if (localStorage.getItem(STORAGE_SESSION)) {
-    window.location.href = 'musicgo-accueil.html';
+    window.location.href = 'index.html';
   }
 
   const formMessage = document.getElementById('formMessage');
@@ -327,7 +327,7 @@
 
   function goToAccueil(){
     try {
-      window.location.href = 'musicgo-accueil.html';
+      window.location.href = 'index.html';
     } catch (err) {
       console.error('Redirection impossible :', err);
     }
@@ -336,7 +336,7 @@
       showMessage(
         "La redirection automatique n'a pas fonctionné.<br>" +
         "Vérifie que <code>musicgo-accueil.html</code> est bien dans le <strong>même dossier</strong> que cette page.<br>" +
-        '<a href="musicgo-accueil.html">→ Cliquer ici pour continuer</a>',
+        '<a href="index.html">→ Cliquer ici pour continuer</a>',
         'error'
       );
     }, 1500);
